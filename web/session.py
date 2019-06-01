@@ -245,11 +245,16 @@ class DiskStore(Store):
 
     def __getitem__(self, key):
         path = self._get_path(key)
+
         if os.path.exists(path): 
-            pickled = open(path).read()
-            return self.decode(pickled)
+            while True:
+                try:
+                    pickled = open(path, 'rb').read()
+                    return self.decode(pickled)
+                except EOFError:
+                    time.sleep(0.1)
         else:
-            raise KeyError, key
+            raise KeyError(key)
 
     def __setitem__(self, key, value):
         path = self._get_path(key)
